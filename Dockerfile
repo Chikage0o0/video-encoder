@@ -1,4 +1,4 @@
-FROM archlinux:base-devel AS base
+FROM archlinux:base AS base
 
 RUN pacman -Syy --noconfirm && \
     pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc ocl-icd vulkan-icd-loader python-pip
