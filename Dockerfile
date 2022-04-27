@@ -1,7 +1,7 @@
 FROM archlinux:base-devel AS base
 
 RUN pacman -Syy --noconfirm && \
-    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc ocl-icd vulkan-icd-loader
+    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc ocl-icd vulkan-icd-loader python-pip
 
 FROM archlinux:base-devel AS build
 
@@ -22,19 +22,42 @@ RUN yay -Syy --noconfirm && \
     yay -S --noconfirm vapoursynth-plugin-deblock-git vapoursynth-plugin-fluxsmooth-git vapoursynth-plugin-fmtconv-git \
     vapoursynth-plugin-fvsfunc-git vapoursynth-plugin-vsutil-git vapoursynth-plugin-havsfunc-git \
     vapoursynth-plugin-muvsfunc-git vapoursynth-plugin-mvsfunc-git vapoursynth-plugin-mvtools-git vapoursynth-plugin-assrender-git \
-    vapoursynth-plugin-f3kdb-git  && \
+    vapoursynth-plugin-f3kdb-git && \
     sudo mkdir -p /site-packages && sudo chown -R app /site-packages  && \
     find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "*.py" -type f | xargs -i cp -f {} /site-packages/ && \
-    find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "vsutil" -type d | xargs -i cp -rf {} /site-packages/
+    find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "vsutil" -type d | xargs -i cp -rf {} /site-packages/ 
+
+FROM build AS build-svt-av1
+
+RUN yay -Syy --noconfirm && \
+    yay -S --noconfirm svt-av1-git
+
+FROM base AS tmp
+
+COPY --from=build-svt-av1 /usr/lib/libSvtAv1Enc.so.1 /build-tmp/
+COPY --from=build-svt-av1 /usr/bin/SvtAv1EncApp /build-tmp/
+COPY --from=build-plugins /site-packages /build-tmp/site-packages/
+COPY --from=build-plugins /usr/lib/vapoursynth /build-tmp/vapoursynth/
 
 FROM base AS image
 
-COPY --from=build-plugins /site-packages /site-packages
-COPY --from=build-plugins /usr/lib/vapoursynth/* /usr/lib/vapoursynth/
+COPY --from=tmp /build-tmp/ /build-tmp/
 
-RUN cp -rf /site-packages/* $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages && rm -rf /site-packages
+ENV JUPYTER_CONFIG_DIR=/jupyter/config \
+    JUPYTER_DATA_DIR=/jupyter/data \
+    JUPYTER_RUNTIME_DIR=/jupyter/runtime
+
+RUN cp -rf /build-tmp/site-packages/* $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages/ && \
+    cp -f /build-tmp/SvtAv1EncApp /usr/bin/SvtAv1EncApp && \
+    cp -f /build-tmp/libSvtAv1Enc.so.1 /usr/lib/libSvtAv1Enc.so.1 && \
+    cp -rf /build-tmp/vapoursynth/* /usr/lib/vapoursynth/ && \
+    rm -rf /build-tmp && \
+    pip install yuuno
+
+EXPOSE 8888/tcp
 
 VOLUME ["/videos"]
+VOLUME ["/jupyter"]
 WORKDIR /videos
 
-ENTRYPOINT [ "/bin/bash" ]
+CMD ["jupyter", "lab", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
