@@ -1,7 +1,7 @@
 FROM archlinux:base AS base
 
 RUN pacman -Syy --noconfirm && \
-    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc ocl-icd vulkan-icd-loader python-pip
+    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc python-pip libass
 
 FROM archlinux:base-devel AS build
 
@@ -22,7 +22,8 @@ RUN yay -Syy --noconfirm && \
     yay -S --noconfirm vapoursynth-plugin-deblock-git vapoursynth-plugin-fluxsmooth-git vapoursynth-plugin-fmtconv-git \
     vapoursynth-plugin-fvsfunc-git vapoursynth-plugin-vsutil-git vapoursynth-plugin-havsfunc-git \
     vapoursynth-plugin-muvsfunc-git vapoursynth-plugin-mvsfunc-git vapoursynth-plugin-mvtools-git vapoursynth-plugin-assrender-git \
-    vapoursynth-plugin-f3kdb-git && \
+    vapoursynth-plugin-f3kdb-git vapoursynth-plugin-nnedi3-git vapoursynth-plugin-edi_rpow2-git vapoursynth-plugin-znedi3-git \
+    vapoursynth-plugin-nlm-git && \
     sudo mkdir -p /site-packages && sudo chown -R app /site-packages  && \
     find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "*.py" -type f | xargs -i cp -f {} /site-packages/ && \
     find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "vsutil" -type d | xargs -i cp -rf {} /site-packages/ 
