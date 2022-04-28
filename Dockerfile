@@ -53,7 +53,12 @@ RUN cp -rf /build-tmp/site-packages/* $(python -c "import os;print(os.path.dirna
     cp -f /build-tmp/libSvtAv1Enc.so.1 /usr/lib/libSvtAv1Enc.so.1 && \
     cp -rf /build-tmp/vapoursynth/* /usr/lib/vapoursynth/ && \
     rm -rf /build-tmp && \
-    pip install yuuno
+    pip install yuuno && \
+    useradd -m -G wheel -s /bin/bash app && \
+    sed -i 's/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers && \
+    sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+
+USER app
 
 EXPOSE 8888/tcp
 
