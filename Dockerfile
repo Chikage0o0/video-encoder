@@ -19,6 +19,7 @@ RUN cd ~ && git clone https://aur.archlinux.org/yay.git && cd yay && \
 FROM build AS build-plugins
 
 RUN yay -Syy --noconfirm && \
+    yay -S --noconfirm vapoursynth glslang vulkan-icd-loader vulkan-headers && \
     yay -S --noconfirm vapoursynth-plugin-deblock-git vapoursynth-plugin-fluxsmooth-git vapoursynth-plugin-fmtconv-git \
     vapoursynth-plugin-fvsfunc-git vapoursynth-plugin-vsutil-git vapoursynth-plugin-havsfunc-git \
     vapoursynth-plugin-muvsfunc-git vapoursynth-plugin-mvsfunc-git vapoursynth-plugin-mvtools-git vapoursynth-plugin-assrender-git \
