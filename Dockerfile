@@ -21,12 +21,13 @@ FROM build AS build-plugins
 RUN yay -Syy --noconfirm && \
     yay -S --noconfirm vapoursynth glslang vulkan-icd-loader vulkan-headers && \
     yay -S --noconfirm vapoursynth-plugin-deblock-git vapoursynth-plugin-fluxsmooth-git vapoursynth-plugin-fmtconv-git \
-    vapoursynth-plugin-fvsfunc-git vapoursynth-plugin-havsfunc-git \
+    vapoursynth-plugin-fvsfunc-git vapoursynth-plugin-vsutil-git vapoursynth-plugin-havsfunc-git \
     vapoursynth-plugin-muvsfunc-git vapoursynth-plugin-mvsfunc-git vapoursynth-plugin-mvtools-git vapoursynth-plugin-assrender-git \
     vapoursynth-plugin-f3kdb-git vapoursynth-plugin-nnedi3-git vapoursynth-plugin-edi_rpow2-git vapoursynth-plugin-znedi3-git \
     vapoursynth-plugin-nlm-git vapoursynth-plugin-waifu2x-ncnn-vulkan-git vapoursynth-plugin-imwri-git vapoursynth-tools-getnative-git && \
     sudo mkdir -p /site-packages && sudo chown -R app /site-packages  && \
-    find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "*.py" -type f | xargs -i cp -f {} /site-packages/ 
+    find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "*.py" -type f | xargs -i cp -f {} /site-packages/ && \ 
+    find $(python -c "import os;print(os.path.dirname(os.__file__))")/site-packages -maxdepth 1 -name "vsutil" -type d | xargs -i cp -rf {} /site-packages/ 
 
 FROM build AS build-svt-av1
 
@@ -53,7 +54,7 @@ RUN cp -rf /build-tmp/site-packages/* $(python -c "import os;print(os.path.dirna
     cp -f /build-tmp/libSvtAv1Enc.so.1 /usr/lib/libSvtAv1Enc.so.1 && \
     cp -rf /build-tmp/vapoursynth/* /usr/lib/vapoursynth/ && \
     rm -rf /build-tmp && \
-    pip install --no-deps vsutil getnative && \
+    pip install --no-deps getnative && \
     pip install yuuno matplotlib && pip cache purge
 
 EXPOSE 8888/tcp
