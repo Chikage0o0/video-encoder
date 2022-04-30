@@ -55,7 +55,7 @@ RUN cp -rf /build-tmp/site-packages/* $(python -c "import os;print(os.path.dirna
     cp -rf /build-tmp/vapoursynth/* /usr/lib/vapoursynth/ && \
     rm -rf /build-tmp && \
     pip install --no-deps getnative && \
-    pip install yuuno matplotlib && pip cache purge
+    pip install yuuno matplotlib && pip cache purge &&  echo 'root:123456' | sudo chpasswd
 
 EXPOSE 8888/tcp
 
