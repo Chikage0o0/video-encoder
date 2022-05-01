@@ -1,8 +1,6 @@
 # Video Encoder
 集成VapourSynth、FFMPEG、Jupyter的视频压制Docker环境，添加了常用的VapourSynth插件以及Yuuno插件
 
-Because my English and its bad, English documents welcome big brother to raise PR.
-
 # How to Use
 
 ## 安装容器

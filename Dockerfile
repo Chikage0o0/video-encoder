@@ -1,7 +1,7 @@
 FROM archlinux:base AS base
 
 RUN pacman -Syy --noconfirm && \
-    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc python-pip libass sudo mediainfo vulkan-icd-loader
+    pacman -S --noconfirm ffmpeg vapoursynth svt-av1 vapoursynth-plugin-lsmashsource fftw hwloc python-pip libass sudo mediainfo
 
 FROM archlinux:base-devel AS build
 
