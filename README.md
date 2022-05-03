@@ -191,15 +191,30 @@ video.set_output()
 
 几乎无损的压制命令
 ```bash
-vspipe -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 20  --scm 2 --tune 0 --film-grain 8 -b test.ivf
-ffmpeg -i test.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy -c:a copy   test.mkv
+vspipe -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 20  --scm 2 --tune 0 --film-grain 8 -b tmp.ivf
+ffmpeg -i tmp.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy -c:a copy   output.mkv
 ```
-在这里vpy文件名为`test.vpy`，输出视频文件名为`test.mkv`,命令中的**视频文件**则为视频源文件
+在这里vpy文件名为`test.vpy`，输出视频文件名为`output.mkv`,命令中的**视频文件**则为视频源文件
 
 高压缩的命令为
 ```
-vspipe -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 30  --scm 2 --tune 0 --film-grain 8 -b test.ivf
-ffmpeg -i test.ivf  -i input/PSYCHO-PASS/PSYCHO-PASS-S3/PSYCHO-PASS\ S03E01.mkv -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy   -c:a:0 flac libopus -b:a 160K   test.mkv
+vspipe -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 30  --scm 2 --tune 0 --film-grain 8 -b tmp.ivf
+ffmpeg -i tmp.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy   -c:a:0 flac libopus -b:a 160K   output.mkv
+```
+
+目前Vapoursynth已经可以接受音频的输入与输出，首先需要修改脚本中输入输出：
+```
+video = core.ffms2.Source(source)
+audio = core.bas.Source(source, track=-1)
+
+video.set_output(0)
+audio.set_output(1)
+```
+然后新建终端，输入命令
+```
+vspipe -o 0 -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 30  --scm 2 --tune 0 --film-grain 8 -b tmp.ivf
+vspipe -o 1 -c wav test.vpy - | opusenc --bitrate 160 --downmix-stereo - tmp.opus
+ffmpeg -i tmp.ivf  -i tmp.opus -map 0:v -map 1:a:0 -c:v copy   -c:a copy  output.mkv
 ```
 
 HDR视频的压制需要在SVT-AV1中添加更多参数，可以参考[官方文档](https://github.com/AOMediaCodec/SVT-AV1/blob/master/Docs/CommonQuestions.md#hdr-and-sdr-video)
