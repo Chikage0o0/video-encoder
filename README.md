@@ -199,7 +199,7 @@ ffmpeg -i tmp.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy
 高压缩的命令为
 ```
 vspipe -c y4m test.vpy - | SvtAv1EncApp -i stdin --input-depth 10 --preset 4 --crf 30  --scm 2 --tune 0 --film-grain 8 -b tmp.ivf
-ffmpeg -i tmp.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy   -c:a:0 flac libopus -b:a 160K   output.mkv
+ffmpeg -i tmp.ivf  -i 视频文件 -map 0:v -map 1:a:0 -map_chapters 1 -c:v copy   -c:a:0 libopus -b:a 160K   output.mkv
 ```
 
 目前Vapoursynth已经可以接受音频的输入与输出，首先需要修改脚本中输入输出：
